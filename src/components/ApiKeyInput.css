@@ -1,0 +1,91 @@
+.api-key-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: var(--color-bg-secondary);
+  padding: 2rem;
+}
+
+.api-key-card {
+  background-color: var(--color-bg-primary);
+  border-radius: 1rem;
+  padding: 3rem;
+  max-width: 32rem;
+  width: 100%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.api-key-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.api-key-header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary);
+}
+
+.api-key-header p {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.api-key-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.api-key-input {
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-family: monospace;
+  transition: border-color 0.2s;
+}
+
+.api-key-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.api-key-submit {
+  padding: 0.875rem 1.5rem;
+  background-color: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.api-key-submit:hover:not(:disabled) {
+  background-color: var(--color-accent-hover);
+}
+
+.api-key-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.api-key-note {
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.api-key-note p {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.api-key-note p:last-child {
+  margin-bottom: 0;
+}
