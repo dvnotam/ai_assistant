@@ -10,12 +10,14 @@ export const ChatContainer = () => {
     messages,
     isLoading,
     error,
+    responseFormat,
     isApiKeySet,
     sendMessage,
     clearMessages,
     initializeApiKey,
     clearApiKey,
     loadApiKeyFromStorage,
+    setResponseFormat,
   } = useChat();
 
   useEffect(() => {
@@ -32,6 +34,18 @@ export const ChatContainer = () => {
         <div className="header-content">
           <h1 className="header-title">Claude Chat</h1>
           <div className="header-actions">
+            <div className="format-toggle">
+              <span className="format-label">Текст</span>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={responseFormat === 'json'}
+                  onChange={(e) => setResponseFormat(e.target.checked ? 'json' : 'text')}
+                />
+                <span className="toggle-slider"></span>
+              </label>
+              <span className="format-label">JSON</span>
+            </div>
             <button onClick={clearMessages} className="header-button" title="Clear chat">
               🗑️ Clear
             </button>

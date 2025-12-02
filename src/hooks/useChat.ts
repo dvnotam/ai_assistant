@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { Message, ChatState } from '../types/chat';
+import type { Message, ChatState, ResponseFormat } from '../types/chat';
 import { claudeService } from '../services/claudeService';
 
 export const useChat = () => {
@@ -7,6 +7,7 @@ export const useChat = () => {
     messages: [],
     isLoading: false,
     error: null,
+    responseFormat: 'text',
   });
 
   const [apiKey, setApiKey] = useState<string>('');
@@ -52,11 +53,48 @@ export const useChat = () => {
 
       const response = await claudeService.sendMessage(conversationHistory);
 
+      let messageContent: string;
+
+      if (state.responseFormat === 'json') {
+        // Remove HTML tags and clean text
+        const cleanText = (text: string): string => {
+          let cleaned = text.replace(/<[^>]*>/g, ''); // Remove HTML tags
+          cleaned = cleaned.replace(/\\n✓/g, ''); // Remove \n✓
+          cleaned = cleaned.replace(/\\n\\n/g, ' '); // Remove \n\n
+          cleaned = cleaned.replace(/\\n/g, ' '); // Remove \n
+          cleaned = cleaned.replace(/\n\n/g, ' '); // Remove actual double newlines
+          cleaned = cleaned.replace(/\n/g, ' '); // Remove actual newlines
+          cleaned = cleaned.replace(/\s+/g, ' '); // Replace multiple spaces with single space
+          return cleaned.trim();
+        };
+
+        const cleanedText = cleanText(response.content);
+
+        // Format response as JSON
+        const jsonResponse = {
+          content: cleanedText,
+          tokens: {
+            input: response.usage.input_tokens,
+            output: response.usage.output_tokens,
+            total: response.usage.total_tokens,
+          },
+          model: response.model,
+          timestamp: Date.now(),
+        };
+        // Wrap in markdown code block
+        messageContent = '```json\n' + JSON.stringify(jsonResponse, null, 2) + '\n```';
+      } else {
+        // Return as plain text
+        messageContent = response.content;
+      }
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response,
+        content: messageContent,
         timestamp: Date.now(),
+        usage: response.usage,
+        model: response.model,
       };
 
       setState(prev => ({
@@ -71,14 +109,22 @@ export const useChat = () => {
         error: error instanceof Error ? error.message : 'An error occurred',
       }));
     }
-  }, [isApiKeySet, state.messages]);
+  }, [isApiKeySet, state.messages, state.responseFormat]);
 
   const clearMessages = useCallback(() => {
-    setState({
+    setState(prev => ({
+      ...prev,
       messages: [],
       isLoading: false,
       error: null,
-    });
+    }));
+  }, []);
+
+  const setResponseFormat = useCallback((format: ResponseFormat) => {
+    setState(prev => ({
+      ...prev,
+      responseFormat: format,
+    }));
   }, []);
 
   const clearApiKey = useCallback(() => {
@@ -92,6 +138,7 @@ export const useChat = () => {
     messages: state.messages,
     isLoading: state.isLoading,
     error: state.error,
+    responseFormat: state.responseFormat,
     apiKey,
     isApiKeySet,
     sendMessage,
@@ -99,5 +146,6 @@ export const useChat = () => {
     initializeApiKey,
     clearApiKey,
     loadApiKeyFromStorage,
+    setResponseFormat,
   };
 };
