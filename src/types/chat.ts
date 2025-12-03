@@ -20,4 +20,5 @@ export type ChatState = {
   isLoading: boolean;
   error: string | null;
   responseFormat: ResponseFormat;
+  useSystemPrompt: boolean;
 }

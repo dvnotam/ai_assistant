@@ -11,6 +11,7 @@ export const ChatContainer = () => {
     isLoading,
     error,
     responseFormat,
+    useSystemPrompt,
     isApiKeySet,
     sendMessage,
     clearMessages,
@@ -18,6 +19,7 @@ export const ChatContainer = () => {
     clearApiKey,
     loadApiKeyFromStorage,
     setResponseFormat,
+    toggleSystemPrompt,
   } = useChat();
 
   useEffect(() => {
@@ -34,6 +36,18 @@ export const ChatContainer = () => {
         <div className="header-content">
           <h1 className="header-title">Claude Chat</h1>
           <div className="header-actions">
+            <div className="format-toggle">
+              <span className="format-label">Обычный</span>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={useSystemPrompt}
+                  onChange={(e) => toggleSystemPrompt(e.target.checked)}
+                />
+                <span className="toggle-slider"></span>
+              </label>
+              <span className="format-label">Диалог</span>
+            </div>
             <div className="format-toggle">
               <span className="format-label">Текст</span>
               <label className="toggle-switch">

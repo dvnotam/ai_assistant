@@ -8,6 +8,7 @@ export const useChat = () => {
     isLoading: false,
     error: null,
     responseFormat: 'text',
+    useSystemPrompt: false,
   });
 
   const [apiKey, setApiKey] = useState<string>('');
@@ -51,7 +52,7 @@ export const useChat = () => {
         content: msg.content,
       }));
 
-      const response = await claudeService.sendMessage(conversationHistory);
+      const response = await claudeService.sendMessage(conversationHistory, state.useSystemPrompt);
 
       let messageContent: string;
 
@@ -109,7 +110,7 @@ export const useChat = () => {
         error: error instanceof Error ? error.message : 'An error occurred',
       }));
     }
-  }, [isApiKeySet, state.messages, state.responseFormat]);
+  }, [isApiKeySet, state.messages, state.responseFormat, state.useSystemPrompt]);
 
   const clearMessages = useCallback(() => {
     setState(prev => ({
@@ -127,6 +128,13 @@ export const useChat = () => {
     }));
   }, []);
 
+  const toggleSystemPrompt = useCallback((enabled: boolean) => {
+    setState(prev => ({
+      ...prev,
+      useSystemPrompt: enabled,
+    }));
+  }, []);
+
   const clearApiKey = useCallback(() => {
     setApiKey('');
     setIsApiKeySet(false);
@@ -139,6 +147,7 @@ export const useChat = () => {
     isLoading: state.isLoading,
     error: state.error,
     responseFormat: state.responseFormat,
+    useSystemPrompt: state.useSystemPrompt,
     apiKey,
     isApiKeySet,
     sendMessage,
@@ -147,5 +156,6 @@ export const useChat = () => {
     clearApiKey,
     loadApiKeyFromStorage,
     setResponseFormat,
+    toggleSystemPrompt,
   };
 };
