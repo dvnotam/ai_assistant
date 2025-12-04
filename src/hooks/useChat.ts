@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
-import type { Message, ChatState, ResponseFormat } from '../types/chat';
+import type { Message, ChatState, ResponseFormat, ModelType } from '../types/chat';
+import { MODEL_IDS } from '../types/chat';
 import { claudeService } from '../services/claudeService';
 
 export const useChat = () => {
@@ -9,6 +10,7 @@ export const useChat = () => {
     error: null,
     responseFormat: 'text',
     useSystemPrompt: false,
+    selectedModel: 'sonnet-4.5',
   });
 
   const [apiKey, setApiKey] = useState<string>('');
@@ -26,6 +28,14 @@ export const useChat = () => {
     const storedKey = localStorage.getItem('claude_api_key');
     if (storedKey) {
       initializeApiKey(storedKey);
+    }
+
+    const storedModel = localStorage.getItem('claude_selected_model') as ModelType | null;
+    if (storedModel && (storedModel === 'opus-3.5' || storedModel === 'sonnet-4.5' || storedModel === 'haiku-4.5')) {
+      setState(prev => ({
+        ...prev,
+        selectedModel: storedModel,
+      }));
     }
   }, [initializeApiKey]);
 
@@ -52,7 +62,11 @@ export const useChat = () => {
         content: msg.content,
       }));
 
-      const response = await claudeService.sendMessage(conversationHistory, state.useSystemPrompt);
+      const response = await claudeService.sendMessage(
+        conversationHistory,
+        MODEL_IDS[state.selectedModel],
+        state.useSystemPrompt
+      );
 
       let messageContent: string;
 
@@ -110,7 +124,7 @@ export const useChat = () => {
         error: error instanceof Error ? error.message : 'An error occurred',
       }));
     }
-  }, [isApiKeySet, state.messages, state.responseFormat, state.useSystemPrompt]);
+  }, [isApiKeySet, state.messages, state.responseFormat, state.useSystemPrompt, state.selectedModel]);
 
   const clearMessages = useCallback(() => {
     setState(prev => ({
@@ -135,6 +149,14 @@ export const useChat = () => {
     }));
   }, []);
 
+  const setSelectedModel = useCallback((model: ModelType) => {
+    setState(prev => ({
+      ...prev,
+      selectedModel: model,
+    }));
+    localStorage.setItem('claude_selected_model', model);
+  }, []);
+
   const clearApiKey = useCallback(() => {
     setApiKey('');
     setIsApiKeySet(false);
@@ -148,6 +170,7 @@ export const useChat = () => {
     error: state.error,
     responseFormat: state.responseFormat,
     useSystemPrompt: state.useSystemPrompt,
+    selectedModel: state.selectedModel,
     apiKey,
     isApiKeySet,
     sendMessage,
@@ -157,5 +180,6 @@ export const useChat = () => {
     loadApiKeyFromStorage,
     setResponseFormat,
     toggleSystemPrompt,
+    setSelectedModel,
   };
 };

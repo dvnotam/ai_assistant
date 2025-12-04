@@ -115,7 +115,6 @@ const SYSTEM_PROMPT = `Ты — AI-ассистент, который помог
 
 export class ClaudeService {
   private client: Anthropic | null = null;
-  private model = 'claude-haiku-4-5-20251001';
 
   initialize(apiKey: string) {
     this.client = new Anthropic({
@@ -126,16 +125,20 @@ export class ClaudeService {
 
   async sendMessage(
     messages: { role: 'user' | 'assistant'; content: string }[],
+    modelId: string,
     useSystemPrompt: boolean = false
   ): Promise<ClaudeResponse> {
     if (!this.client) {
       throw new Error('Claude client not initialized. Please set your API key.');
     }
 
+    // Claude 3 Opus supports max 4096 output tokens, newer models support 8096
+    const maxTokens = modelId.includes('claude-3-opus') ? 4096 : 8096;
+
     try {
       const response = await this.client.messages.create({
-        model: this.model,
-        max_tokens: 8096,
+        model: modelId,
+        max_tokens: maxTokens,
         messages,
         ...(useSystemPrompt && { system: SYSTEM_PROMPT }),
       });

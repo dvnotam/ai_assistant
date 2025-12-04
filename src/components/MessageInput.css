@@ -25,11 +25,11 @@
   outline: none;
   resize: none;
   font-size: 0.9375rem;
-  line-height: 1.5;
+  line-height: 2.5rem;
   font-family: inherit;
   background-color: transparent;
   color: var(--color-text-primary);
-  min-height: 1.5rem;
+  min-height: 2.5rem;
   max-height: 12.5rem;
   overflow-y: auto;
 }
