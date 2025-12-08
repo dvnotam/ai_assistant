@@ -9,8 +9,8 @@ export const useChat = () => {
     isLoading: false,
     error: null,
     responseFormat: 'text',
-    useSystemPrompt: false,
     selectedModel: 'sonnet-4.5',
+    temperature: 0.7,
   });
 
   const [apiKey, setApiKey] = useState<string>('');
@@ -65,7 +65,7 @@ export const useChat = () => {
       const response = await claudeService.sendMessage(
         conversationHistory,
         MODEL_IDS[state.selectedModel],
-        state.useSystemPrompt
+        state.temperature
       );
 
       let messageContent: string;
@@ -124,7 +124,7 @@ export const useChat = () => {
         error: error instanceof Error ? error.message : 'An error occurred',
       }));
     }
-  }, [isApiKeySet, state.messages, state.responseFormat, state.useSystemPrompt, state.selectedModel]);
+  }, [isApiKeySet, state.messages, state.responseFormat, state.selectedModel, state.temperature]);
 
   const clearMessages = useCallback(() => {
     setState(prev => ({
@@ -142,19 +142,19 @@ export const useChat = () => {
     }));
   }, []);
 
-  const toggleSystemPrompt = useCallback((enabled: boolean) => {
-    setState(prev => ({
-      ...prev,
-      useSystemPrompt: enabled,
-    }));
-  }, []);
-
   const setSelectedModel = useCallback((model: ModelType) => {
     setState(prev => ({
       ...prev,
       selectedModel: model,
     }));
     localStorage.setItem('claude_selected_model', model);
+  }, []);
+
+  const setTemperature = useCallback((temp: number) => {
+    setState(prev => ({
+      ...prev,
+      temperature: temp,
+    }));
   }, []);
 
   const clearApiKey = useCallback(() => {
@@ -169,8 +169,8 @@ export const useChat = () => {
     isLoading: state.isLoading,
     error: state.error,
     responseFormat: state.responseFormat,
-    useSystemPrompt: state.useSystemPrompt,
     selectedModel: state.selectedModel,
+    temperature: state.temperature,
     apiKey,
     isApiKeySet,
     sendMessage,
@@ -179,7 +179,7 @@ export const useChat = () => {
     clearApiKey,
     loadApiKeyFromStorage,
     setResponseFormat,
-    toggleSystemPrompt,
     setSelectedModel,
+    setTemperature,
   };
 };

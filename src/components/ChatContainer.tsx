@@ -12,8 +12,8 @@ export const ChatContainer = () => {
     isLoading,
     error,
     responseFormat,
-    useSystemPrompt,
     selectedModel,
+    temperature,
     isApiKeySet,
     sendMessage,
     clearMessages,
@@ -21,8 +21,8 @@ export const ChatContainer = () => {
     clearApiKey,
     loadApiKeyFromStorage,
     setResponseFormat,
-    toggleSystemPrompt,
     setSelectedModel,
+    setTemperature,
   } = useChat();
 
   useEffect(() => {
@@ -55,18 +55,19 @@ export const ChatContainer = () => {
           </div>
 
           <div className="sidebar-section">
-            <label className="sidebar-label">Стиль общения</label>
-            <div className="sidebar-toggle">
-              <span className="toggle-label">Обычный</span>
-              <label className="toggle-switch">
-                <input
-                  type="checkbox"
-                  checked={useSystemPrompt}
-                  onChange={(e) => toggleSystemPrompt(e.target.checked)}
-                />
-                <span className="toggle-slider"></span>
-              </label>
-              <span className="toggle-label">Диалог</span>
+            <label className="sidebar-label">Temperature: {temperature.toFixed(1)}</label>
+            <input
+              type="range"
+              min="0"
+              max="1.0"
+              step="0.1"
+              value={temperature}
+              onChange={(e) => setTemperature(parseFloat(e.target.value))}
+              className="temperature-slider"
+            />
+            <div className="temperature-labels">
+              <span className="temp-label">🎯 Точность</span>
+              <span className="temp-label">🚀 Креативность</span>
             </div>
           </div>
 
@@ -83,40 +84,6 @@ export const ChatContainer = () => {
                 <span className="toggle-slider"></span>
               </label>
               <span className="toggle-label">JSON</span>
-            </div>
-          </div>
-
-          <div className="sidebar-section">
-            <label className="sidebar-label">Задачи</label>
-            <div className="task-buttons">
-              <button
-                className="task-button"
-                onClick={() => sendMessage('Реши задачу\n\nТри выключателя\n\nВ комнате есть три выключателя, но только один из них включает лампочку в соседней закрытой комнате. Ты можешь зайти в соседнюю комнату только один раз. Как определить, какой выключатель управляет лампочкой?')}
-                disabled={isLoading}
-              >
-                Задача 1
-              </button>
-              <button
-                className="task-button"
-                onClick={() => sendMessage('Реши задачу\n\nПереправа через реку\n\nФермеру нужно переправить через реку волка, козу и капусту. В лодке помещается только он сам и один предмет. Если оставить волка с козой без присмотра — волк съест козу. Если оставить козу с капустой — коза съест капусту. Как переправить всех?')}
-                disabled={isLoading}
-              >
-                Задача 2
-              </button>
-              <button
-                className="task-button"
-                onClick={() => sendMessage('Реши задачу\n\nМонеты\n\nУ тебя 10 стопок монет по 10 монет в каждой. В одной из стопок все монеты фальшивые. Настоящая монета весит 10 грамм, фальшивая — 9 грамм. У тебя есть точные весы, но взвесить можно только один раз. Как найти стопку с фальшивыми монетами?')}
-                disabled={isLoading}
-              >
-                Задача 3
-              </button>
-              <button
-                className="task-button"
-                onClick={() => sendMessage('Реши задачу\n\nСтранный лифт\n\nВ здании 10 этажей. Человек живёт на 10-м этаже, но когда возвращается домой один, он доезжает на лифте только до 7-го этажа, а дальше идёт пешком. Когда с ним кто-то едет, он доезжает до 10-го. Почему?')}
-                disabled={isLoading}
-              >
-                Задача 4
-              </button>
             </div>
           </div>
         </div>
