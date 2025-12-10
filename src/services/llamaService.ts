@@ -10,6 +10,18 @@ export interface LlamaResponse {
   model: string;
 }
 
+const SYSTEM_PROMPT = `КРИТИЧЕСКОЕ ТРЕБОВАНИЕ: Максимум 100 токенов.
+
+Правила:
+- Только самое важное
+- Короткие предложения
+- Без повторений
+- Логически завершай ответ
+- Если нужно больше — предложи уточнить
+- Не извиняйся за краткость
+
+Превышаешь 100 токенов — сокращай безжалостно.`;
+
 export class LlamaService {
   private client: HfInference | null = null;
 
@@ -28,12 +40,15 @@ export class LlamaService {
     try {
       const response = await this.client.chatCompletion({
         model: 'meta-llama/Llama-3.3-70B-Instruct',
-        messages: messages.map(msg => ({
-          role: msg.role,
-          content: msg.content,
-        })),
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          ...messages.map(msg => ({
+            role: msg.role,
+            content: msg.content,
+          })),
+        ],
         temperature: temperature,
-        max_tokens: 2048,
+        max_tokens: 100,
       });
 
       const content = response.choices[0]?.message?.content || '';
