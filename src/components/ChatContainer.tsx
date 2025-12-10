@@ -15,9 +15,17 @@ export const ChatContainer = () => {
     selectedModel,
     temperature,
     isApiKeySet,
+    isGroqApiKeySet,
+    isQwenApiKeySet,
+    isLlamaApiKeySet,
+    isGemmaApiKeySet,
     sendMessage,
     clearMessages,
     initializeApiKey,
+    initializeGroqApiKey,
+    initializeQwenApiKey,
+    initializeLlamaApiKey,
+    initializeGemmaApiKey,
     clearApiKey,
     loadApiKeyFromStorage,
     setResponseFormat,
@@ -51,8 +59,68 @@ export const ChatContainer = () => {
               <option value="opus-3.5">{MODEL_NAMES['opus-3.5']}</option>
               <option value="sonnet-4.5">{MODEL_NAMES['sonnet-4.5']}</option>
               <option value="haiku-4.5">{MODEL_NAMES['haiku-4.5']}</option>
+              <option value="groq">{MODEL_NAMES['groq']}</option>
+              <option value="qwen">{MODEL_NAMES['qwen']}</option>
+              <option value="llama">{MODEL_NAMES['llama']}</option>
+              <option value="gemma">{MODEL_NAMES['gemma']}</option>
             </select>
           </div>
+
+          {selectedModel === 'groq' && !isGroqApiKeySet && (
+            <div className="sidebar-section">
+              <button
+                onClick={() => {
+                  const key = prompt('Введите Groq API ключ:');
+                  if (key) initializeGroqApiKey(key);
+                }}
+                className="groq-api-button"
+              >
+                ⚡ Активировать Groq
+              </button>
+            </div>
+          )}
+
+          {selectedModel === 'qwen' && !isQwenApiKeySet && (
+            <div className="sidebar-section">
+              <button
+                onClick={() => {
+                  const key = prompt('Введите HuggingFace API ключ:');
+                  if (key) initializeQwenApiKey(key);
+                }}
+                className="qwen-api-button"
+              >
+                🤗 Активировать Qwen
+              </button>
+            </div>
+          )}
+
+          {selectedModel === 'llama' && !isLlamaApiKeySet && (
+            <div className="sidebar-section">
+              <button
+                onClick={() => {
+                  const key = prompt('Введите HuggingFace API ключ:');
+                  if (key) initializeLlamaApiKey(key);
+                }}
+                className="llama-api-button"
+              >
+                🦙 Активировать Llama
+              </button>
+            </div>
+          )}
+
+          {selectedModel === 'gemma' && !isGemmaApiKeySet && (
+            <div className="sidebar-section">
+              <button
+                onClick={() => {
+                  const key = prompt('Введите HuggingFace API ключ:');
+                  if (key) initializeGemmaApiKey(key);
+                }}
+                className="gemma-api-button"
+              >
+                💎 Активировать Gemma
+              </button>
+            </div>
+          )}
 
           <div className="sidebar-section">
             <label className="sidebar-label">Temperature: {temperature.toFixed(1)}</label>
@@ -110,7 +178,7 @@ export const ChatContainer = () => {
               <span className="error-text">{error}</span>
             </div>
           )}
-          <MessageList messages={messages} isLoading={isLoading} />
+          <MessageList messages={messages} isLoading={isLoading} selectedModel={selectedModel} />
         </main>
 
         <footer className="chat-footer">

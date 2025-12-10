@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import type { Message as MessageType } from '../types/chat';
+import type { Message as MessageType, ModelType } from '../types/chat';
+import { MessageMetrics } from './MessageMetrics';
 import './Message.css';
 
 interface MessageProps {
   message: MessageType;
+  selectedModel: ModelType;
 }
 
 const isMarkdownCodeBlock = (str: string): boolean => {
@@ -44,7 +46,7 @@ const CodeBlock = ({ content }: { content: string }) => {
   );
 };
 
-export const Message = ({ message }: MessageProps) => {
+export const Message = ({ message, selectedModel }: MessageProps) => {
   const isCodeBlock = message.role === 'assistant' && isMarkdownCodeBlock(message.content);
 
   return (
@@ -57,6 +59,14 @@ export const Message = ({ message }: MessageProps) => {
           <CodeBlock content={extractCodeFromBlock(message.content)} />
         ) : (
           <div className="message-text">{message.content}</div>
+        )}
+        {message.role === 'assistant' && (
+          <MessageMetrics
+            usage={message.usage}
+            responseTime={message.responseTime}
+            model={message.model}
+            selectedModel={selectedModel}
+          />
         )}
       </div>
     </div>

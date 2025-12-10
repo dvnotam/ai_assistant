@@ -2,6 +2,10 @@ import { useState, useCallback } from 'react';
 import type { Message, ChatState, ResponseFormat, ModelType } from '../types/chat';
 import { MODEL_IDS } from '../types/chat';
 import { claudeService } from '../services/claudeService';
+import { groqService } from '../services/groqService';
+import { qwenService } from '../services/qwenService';
+import { llamaService } from '../services/llamaService';
+import { gemmaService } from '../services/gemmaService';
 
 export const useChat = () => {
   const [state, setState] = useState<ChatState>({
@@ -15,6 +19,14 @@ export const useChat = () => {
 
   const [apiKey, setApiKey] = useState<string>('');
   const [isApiKeySet, setIsApiKeySet] = useState<boolean>(false);
+  const [groqApiKey, setGroqApiKey] = useState<string>('');
+  const [isGroqApiKeySet, setIsGroqApiKeySet] = useState<boolean>(false);
+  const [qwenApiKey, setQwenApiKey] = useState<string>('');
+  const [isQwenApiKeySet, setIsQwenApiKeySet] = useState<boolean>(false);
+  const [llamaApiKey, setLlamaApiKey] = useState<string>('');
+  const [isLlamaApiKeySet, setIsLlamaApiKeySet] = useState<boolean>(false);
+  const [gemmaApiKey, setGemmaApiKey] = useState<string>('');
+  const [isGemmaApiKeySet, setIsGemmaApiKeySet] = useState<boolean>(false);
 
   const initializeApiKey = useCallback((key: string) => {
     claudeService.initialize(key);
@@ -24,23 +36,80 @@ export const useChat = () => {
     localStorage.setItem('claude_api_key', key);
   }, []);
 
+  const initializeGroqApiKey = useCallback((key: string) => {
+    groqService.initialize(key);
+    setGroqApiKey(key);
+    setIsGroqApiKeySet(true);
+    localStorage.setItem('groq_api_key', key);
+  }, []);
+
+  const initializeQwenApiKey = useCallback((key: string) => {
+    qwenService.initialize(key);
+    setQwenApiKey(key);
+    setIsQwenApiKeySet(true);
+    localStorage.setItem('qwen_api_key', key);
+  }, []);
+
+  const initializeLlamaApiKey = useCallback((key: string) => {
+    llamaService.initialize(key);
+    setLlamaApiKey(key);
+    setIsLlamaApiKeySet(true);
+    localStorage.setItem('llama_api_key', key);
+  }, []);
+
+  const initializeGemmaApiKey = useCallback((key: string) => {
+    gemmaService.initialize(key);
+    setGemmaApiKey(key);
+    setIsGemmaApiKeySet(true);
+    localStorage.setItem('gemma_api_key', key);
+  }, []);
+
   const loadApiKeyFromStorage = useCallback(() => {
     const storedKey = localStorage.getItem('claude_api_key');
     if (storedKey) {
       initializeApiKey(storedKey);
     }
 
+    const storedGroqKey = localStorage.getItem('groq_api_key');
+    if (storedGroqKey) {
+      initializeGroqApiKey(storedGroqKey);
+    }
+
+    const storedQwenKey = localStorage.getItem('qwen_api_key');
+    if (storedQwenKey) {
+      initializeQwenApiKey(storedQwenKey);
+    }
+
+    const storedLlamaKey = localStorage.getItem('llama_api_key');
+    if (storedLlamaKey) {
+      initializeLlamaApiKey(storedLlamaKey);
+    }
+
+    const storedGemmaKey = localStorage.getItem('gemma_api_key');
+    if (storedGemmaKey) {
+      initializeGemmaApiKey(storedGemmaKey);
+    }
+
     const storedModel = localStorage.getItem('claude_selected_model') as ModelType | null;
-    if (storedModel && (storedModel === 'opus-3.5' || storedModel === 'sonnet-4.5' || storedModel === 'haiku-4.5')) {
+    if (storedModel && (storedModel === 'opus-3.5' || storedModel === 'sonnet-4.5' || storedModel === 'haiku-4.5' || storedModel === 'groq' || storedModel === 'qwen' || storedModel === 'llama' || storedModel === 'gemma')) {
       setState(prev => ({
         ...prev,
         selectedModel: storedModel,
       }));
     }
-  }, [initializeApiKey]);
+  }, [initializeApiKey, initializeGroqApiKey, initializeQwenApiKey, initializeLlamaApiKey, initializeGemmaApiKey]);
 
   const sendMessage = useCallback(async (content: string) => {
-    if (!content.trim() || !isApiKeySet) return;
+    const isGroq = state.selectedModel === 'groq';
+    const isQwen = state.selectedModel === 'qwen';
+    const isLlama = state.selectedModel === 'llama';
+    const isGemma = state.selectedModel === 'gemma';
+    if (!content.trim()) return;
+    if (isGroq && !isGroqApiKeySet) return;
+    if (isQwen && !isQwenApiKeySet) return;
+    if (isLlama && !isLlamaApiKeySet) return;
+    if (isGemma && !isGemmaApiKeySet) return;
+    if (!isGroq && !isQwen && !isLlama && !isGemma && !isApiKeySet) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -62,11 +131,30 @@ export const useChat = () => {
         content: msg.content,
       }));
 
-      const response = await claudeService.sendMessage(
-        conversationHistory,
-        MODEL_IDS[state.selectedModel],
-        state.temperature
-      );
+      const isGroq = state.selectedModel === 'groq';
+      const isQwen = state.selectedModel === 'qwen';
+      const isLlama = state.selectedModel === 'llama';
+      const isGemma = state.selectedModel === 'gemma';
+
+      // Запускаем таймер
+      const startTime = Date.now();
+
+      const response = isGemma
+        ? await gemmaService.sendMessage(conversationHistory, state.temperature)
+        : isLlama
+        ? await llamaService.sendMessage(conversationHistory, state.temperature)
+        : isQwen
+        ? await qwenService.sendMessage(conversationHistory, state.temperature)
+        : isGroq
+        ? await groqService.sendMessage(conversationHistory, state.temperature)
+        : await claudeService.sendMessage(
+            conversationHistory,
+            MODEL_IDS[state.selectedModel],
+            state.temperature
+          );
+
+      // Вычисляем время ответа
+      const responseTime = Date.now() - startTime;
 
       let messageContent: string;
 
@@ -110,6 +198,7 @@ export const useChat = () => {
         timestamp: Date.now(),
         usage: response.usage,
         model: response.model,
+        responseTime: responseTime,
       };
 
       setState(prev => ({
@@ -124,7 +213,7 @@ export const useChat = () => {
         error: error instanceof Error ? error.message : 'An error occurred',
       }));
     }
-  }, [isApiKeySet, state.messages, state.responseFormat, state.selectedModel, state.temperature]);
+  }, [isApiKeySet, isGroqApiKeySet, isQwenApiKeySet, isLlamaApiKeySet, isGemmaApiKeySet, state.messages, state.responseFormat, state.selectedModel, state.temperature]);
 
   const clearMessages = useCallback(() => {
     setState(prev => ({
@@ -173,9 +262,21 @@ export const useChat = () => {
     temperature: state.temperature,
     apiKey,
     isApiKeySet,
+    groqApiKey,
+    isGroqApiKeySet,
+    qwenApiKey,
+    isQwenApiKeySet,
+    llamaApiKey,
+    isLlamaApiKeySet,
+    gemmaApiKey,
+    isGemmaApiKeySet,
     sendMessage,
     clearMessages,
     initializeApiKey,
+    initializeGroqApiKey,
+    initializeQwenApiKey,
+    initializeLlamaApiKey,
+    initializeGemmaApiKey,
     clearApiKey,
     loadApiKeyFromStorage,
     setResponseFormat,

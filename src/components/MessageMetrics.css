@@ -1,0 +1,45 @@
+.message-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  background-color: var(--color-bg-tertiary);
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+  font-size: 0.8125rem;
+}
+
+.metric-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--color-text-secondary);
+}
+
+.metric-icon {
+  font-size: 1rem;
+}
+
+.metric-label {
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.metric-value {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.metric-value.free {
+  color: #10b981;
+}
+
+.model-name {
+  font-family: monospace;
+  font-size: 0.75rem;
+  background-color: var(--color-bg-primary);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--color-border);
+}

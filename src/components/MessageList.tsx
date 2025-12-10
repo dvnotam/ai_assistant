@@ -1,14 +1,15 @@
 import { useEffect, useRef } from 'react';
-import type { Message as MessageType } from '../types/chat';
+import type { Message as MessageType, ModelType } from '../types/chat';
 import { Message } from './Message';
 import './MessageList.css';
 
 interface MessageListProps {
   messages: MessageType[];
   isLoading: boolean;
+  selectedModel: ModelType;
 }
 
-export const MessageList = ({ messages, isLoading }: MessageListProps) => {
+export const MessageList = ({ messages, isLoading, selectedModel }: MessageListProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export const MessageList = ({ messages, isLoading }: MessageListProps) => {
       ) : (
         <>
           {messages.map((message) => (
-            <Message key={message.id} message={message} />
+            <Message key={message.id} message={message} selectedModel={selectedModel} />
           ))}
           {isLoading && (
             <div className="message assistant">
