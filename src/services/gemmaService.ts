@@ -10,18 +10,6 @@ export interface GemmaResponse {
   model: string;
 }
 
-const SYSTEM_PROMPT = `КРИТИЧЕСКОЕ ТРЕБОВАНИЕ: Максимум 100 токенов.
-
-Правила:
-- Только самое важное
-- Короткие предложения
-- Без повторений
-- Логически завершай ответ
-- Если нужно больше — предложи уточнить
-- Не извиняйся за краткость
-
-Превышаешь 100 токенов — сокращай безжалостно.`;
-
 export class GemmaService {
   private client: HfInference | null = null;
 
@@ -40,15 +28,12 @@ export class GemmaService {
     try {
       const response = await this.client.chatCompletion({
         model: 'google/gemma-2-9b-it',
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          ...messages.map(msg => ({
-            role: msg.role,
-            content: msg.content,
-          })),
-        ],
+        messages: messages.map(msg => ({
+          role: msg.role,
+          content: msg.content,
+        })),
         temperature: temperature,
-        max_tokens: 100,
+        max_tokens: 2048,
       });
 
       const content = response.choices[0]?.message?.content || '';
