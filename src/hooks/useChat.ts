@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { Message, ChatState, ResponseFormat, ModelType } from '../types/chat';
 import { MODEL_IDS } from '../types/chat';
 import { claudeService } from '../services/claudeService';
@@ -6,6 +6,7 @@ import { groqService } from '../services/groqService';
 import { qwenService } from '../services/qwenService';
 import { llamaService } from '../services/llamaService';
 import { gemmaService } from '../services/gemmaService';
+import { createConversation, addMessage as addDbMessage, getMessagesByConversation, deleteMessagesByConversation } from '../db/operations';
 
 export const useChat = () => {
   const [state, setState] = useState<ChatState>({
@@ -16,6 +17,8 @@ export const useChat = () => {
     selectedModel: 'sonnet-4.5',
     temperature: 0.7,
   });
+
+  const [currentConversationId, setCurrentConversationId] = useState<number | null>(null);
 
   const [apiKey, setApiKey] = useState<string>('');
   const [isApiKeySet, setIsApiKeySet] = useState<boolean>(false);
@@ -64,6 +67,36 @@ export const useChat = () => {
     localStorage.setItem('gemma_api_key', key);
   }, []);
 
+  // Инициализация или загрузка диалога
+  useEffect(() => {
+    const initConversation = async () => {
+      const storedConvId = localStorage.getItem('current_conversation_id');
+      if (storedConvId) {
+        const convId = parseInt(storedConvId, 10);
+        setCurrentConversationId(convId);
+
+        // Загружаем сообщения из БД
+        const dbMessages = await getMessagesByConversation(convId);
+        const chatMessages: Message[] = dbMessages.map(msg => ({
+          id: msg.id?.toString() || '',
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.timestamp.getTime(),
+          metadata: msg.metadata
+        }));
+
+        setState(prev => ({ ...prev, messages: chatMessages }));
+      } else {
+        // Создаем новый диалог
+        const convId = await createConversation('Новый диалог');
+        setCurrentConversationId(convId);
+        localStorage.setItem('current_conversation_id', convId.toString());
+      }
+    };
+
+    initConversation();
+  }, []);
+
   const loadApiKeyFromStorage = useCallback(() => {
     const storedKey = localStorage.getItem('claude_api_key');
     if (storedKey) {
@@ -110,6 +143,7 @@ export const useChat = () => {
     if (isLlama && !isLlamaApiKeySet) return;
     if (isGemma && !isGemmaApiKeySet) return;
     if (!isGroq && !isQwen && !isLlama && !isGemma && !isApiKeySet) return;
+    if (!currentConversationId) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -117,6 +151,9 @@ export const useChat = () => {
       content: content.trim(),
       timestamp: Date.now(),
     };
+
+    // Сохраняем сообщение пользователя в БД
+    await addDbMessage(currentConversationId, 'user', content.trim());
 
     setState(prev => ({
       ...prev,
@@ -201,6 +238,15 @@ export const useChat = () => {
         responseTime: responseTime,
       };
 
+      // Сохраняем ответ ассистента в БД
+      if (currentConversationId) {
+        await addDbMessage(currentConversationId, 'assistant', messageContent, {
+          usage: response.usage,
+          model: response.model,
+          responseTime: responseTime
+        });
+      }
+
       setState(prev => ({
         ...prev,
         messages: [...prev.messages, assistantMessage],
@@ -213,16 +259,20 @@ export const useChat = () => {
         error: error instanceof Error ? error.message : 'An error occurred',
       }));
     }
-  }, [isApiKeySet, isGroqApiKeySet, isQwenApiKeySet, isLlamaApiKeySet, isGemmaApiKeySet, state.messages, state.responseFormat, state.selectedModel, state.temperature]);
+  }, [isApiKeySet, isGroqApiKeySet, isQwenApiKeySet, isLlamaApiKeySet, isGemmaApiKeySet, currentConversationId, state.messages, state.responseFormat, state.selectedModel, state.temperature]);
 
-  const clearMessages = useCallback(() => {
+  const clearMessages = useCallback(async () => {
+    if (currentConversationId) {
+      await deleteMessagesByConversation(currentConversationId);
+    }
+
     setState(prev => ({
       ...prev,
       messages: [],
       isLoading: false,
       error: null,
     }));
-  }, []);
+  }, [currentConversationId]);
 
   const setResponseFormat = useCallback((format: ResponseFormat) => {
     setState(prev => ({
