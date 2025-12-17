@@ -1,0 +1,65 @@
+diff --git a/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js b/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+index be30a22..52f51b0 100644
+--- a/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
++++ b/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+@@ -31,8 +31,23 @@ export function safeParse(schema, data) {
+         return result;
+     }
+     const v3Schema = schema;
+-    const result = v3Schema.safeParse(data);
+-    return result;
++    // Add defensive check for safeParse method
++    if (typeof v3Schema.safeParse === 'function') {
++        const result = v3Schema.safeParse(data);
++        return result;
++    }
++    // Fallback: try parse method instead
++    if (typeof v3Schema.parse === 'function') {
++        try {
++            const parsed = v3Schema.parse(data);
++            return { success: true, data: parsed };
++        } catch (error) {
++            return { success: false, error };
++        }
++    }
++    // Last resort: return data as-is
++    console.warn('[zod-compat] Schema has no safeParse or parse method, returning data as-is');
++    return { success: true, data };
+ }
+ export async function safeParseAsync(schema, data) {
+     if (isZ4Schema(schema)) {
+@@ -41,8 +56,32 @@ export async function safeParseAsync(schema, data) {
+         return result;
+     }
+     const v3Schema = schema;
+-    const result = await v3Schema.safeParseAsync(data);
+-    return result;
++    // Add defensive check for safeParseAsync method
++    if (typeof v3Schema.safeParseAsync === 'function') {
++        const result = await v3Schema.safeParseAsync(data);
++        return result;
++    }
++    // Fallback: try parseAsync method instead
++    if (typeof v3Schema.parseAsync === 'function') {
++        try {
++            const parsed = await v3Schema.parseAsync(data);
++            return { success: true, data: parsed };
++        } catch (error) {
++            return { success: false, error };
++        }
++    }
++    // Fallback to sync parse
++    if (typeof v3Schema.parse === 'function') {
++        try {
++            const parsed = v3Schema.parse(data);
++            return { success: true, data: parsed };
++        } catch (error) {
++            return { success: false, error };
++        }
++    }
++    // Last resort: return data as-is
++    console.warn('[zod-compat] Schema has no safeParseAsync or parseAsync method, returning data as-is');
++    return { success: true, data };
+ }
+ // --- Shape extraction ---
+ export function getObjectShape(schema) {

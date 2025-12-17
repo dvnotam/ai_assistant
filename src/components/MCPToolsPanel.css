@@ -1,0 +1,272 @@
+.mcp-tools-panel {
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 800px;
+  margin: 20px auto;
+  color: #fff;
+}
+
+.mcp-header {
+  margin-bottom: 20px;
+}
+
+.mcp-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.mcp-header h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 24px;
+}
+
+.mcp-back-button {
+  background: transparent;
+  border: 1px solid #666;
+  color: #ccc;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.mcp-back-button:hover {
+  background: #2a2a2a;
+  border-color: #888;
+  color: #fff;
+}
+
+.mcp-tabs {
+  display: flex;
+  gap: 10px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 10px;
+}
+
+.mcp-tabs button {
+  background: transparent;
+  border: none;
+  color: #999;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 4px 4px 0 0;
+  transition: all 0.2s;
+}
+
+.mcp-tabs button:hover {
+  background: #2a2a2a;
+  color: #fff;
+}
+
+.mcp-tabs button.active {
+  background: #333;
+  color: #fff;
+  border-bottom: 2px solid #4CAF50;
+}
+
+.mcp-error {
+  background: #ff4444;
+  color: white;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.mcp-loading {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+}
+
+.mcp-tools-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.mcp-tool-item {
+  background: #2a2a2a;
+  border-radius: 6px;
+  padding: 15px;
+  border-left: 3px solid #4CAF50;
+}
+
+.tool-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.tool-header h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 16px;
+}
+
+.tool-header code {
+  background: #1a1a1a;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #4CAF50;
+}
+
+.mcp-tool-item p {
+  margin: 0;
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.mcp-graph-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.graph-section {
+  background: #2a2a2a;
+  border-radius: 6px;
+  padding: 15px;
+}
+
+.graph-section h3 {
+  margin: 0 0 15px 0;
+  color: #fff;
+  font-size: 18px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 10px;
+}
+
+.entities-list,
+.relations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.entity-item {
+  background: #1a1a1a;
+  padding: 12px;
+  border-radius: 4px;
+  border-left: 3px solid #2196F3;
+}
+
+.entity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.entity-header strong {
+  color: #fff;
+  font-size: 14px;
+}
+
+.entity-type {
+  background: #2196F3;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.observations {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+  color: #ccc;
+}
+
+.observations li {
+  margin: 4px 0;
+  font-size: 13px;
+}
+
+.relation-item {
+  background: #1a1a1a;
+  padding: 10px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  border-left: 3px solid #FF9800;
+}
+
+.relation-item .from,
+.relation-item .to {
+  color: #fff;
+  font-weight: 500;
+}
+
+.relation-item .type {
+  color: #FF9800;
+  font-style: italic;
+}
+
+.relation-item .arrow {
+  color: #666;
+}
+
+.empty-message {
+  text-align: center;
+  color: #666;
+  padding: 20px;
+  font-style: italic;
+}
+
+.refresh-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+  align-self: flex-start;
+}
+
+.refresh-btn:hover {
+  background: #45a049;
+}
+
+/* Scrollbar styling */
+.mcp-tools-list::-webkit-scrollbar,
+.entities-list::-webkit-scrollbar,
+.relations-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mcp-tools-list::-webkit-scrollbar-track,
+.entities-list::-webkit-scrollbar-track,
+.relations-list::-webkit-scrollbar-track {
+  background: #1a1a1a;
+  border-radius: 4px;
+}
+
+.mcp-tools-list::-webkit-scrollbar-thumb,
+.entities-list::-webkit-scrollbar-thumb,
+.relations-list::-webkit-scrollbar-thumb {
+  background: #4CAF50;
+  border-radius: 4px;
+}
+
+.mcp-tools-list::-webkit-scrollbar-thumb:hover,
+.entities-list::-webkit-scrollbar-thumb:hover,
+.relations-list::-webkit-scrollbar-thumb:hover {
+  background: #45a049;
+}

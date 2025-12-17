@@ -6,7 +6,12 @@ import { ApiKeyInput } from './ApiKeyInput';
 import { MODEL_NAMES, type ModelType } from '../types/chat';
 import './ChatContainer.css';
 
-export const ChatContainer = () => {
+interface ChatContainerProps {
+  onShowMCPTools?: () => void;
+  onShowGitHubDemo?: () => void;
+}
+
+export const ChatContainer = ({ onShowMCPTools, onShowGitHubDemo }: ChatContainerProps) => {
   const {
     messages,
     isLoading,
@@ -154,6 +159,30 @@ export const ChatContainer = () => {
               <span className="toggle-label">JSON</span>
             </div>
           </div>
+
+          {onShowMCPTools && (
+            <div className="sidebar-section">
+              <button
+                onClick={onShowMCPTools}
+                className="mcp-tools-button"
+                title="Открыть панель MCP инструментов"
+              >
+                🧠 MCP Память
+              </button>
+            </div>
+          )}
+
+          {onShowGitHubDemo && (
+            <div className="sidebar-section">
+              <button
+                onClick={onShowGitHubDemo}
+                className="mcp-tools-button"
+                title="Открыть GitHub Demo"
+              >
+                🐙 GitHub MCP
+              </button>
+            </div>
+          )}
         </div>
       </aside>
 
